@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brindisi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            height: 600px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .card {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border-radius: 24px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transform: translateY(100vh) scale(0.8);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .card.active {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            animation: bounce 0.6s ease-out;
+        }
+
+        .card.exit {
+            transform: translateY(-100vh) scale(0.8);
+            opacity: 0;
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: translateY(100vh) scale(0.8);
+            }
+            60% {
+                transform: translateY(-30px) scale(1.05);
+            }
+            80% {
+                transform: translateY(10px) scale(0.98);
+            }
+            100% {
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .text {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.4;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            opacity: 0.8;
+            animation: fadeInOut 2s ease-in-out infinite;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .scroll-indicator.hidden {
+            display: none;
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .welcome-screen.hidden {
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+
+        .welcome-title {
+            font-size: 48px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            padding: 0 30px;
+            margin-bottom: 40px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .welcome-instruction {
+            font-size: 18px;
+            color: white;
+            opacity: 0.8;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        .welcome-instruction.hidden {
+            display: none;
+        }
+
+        .start-audio-button {
+            background: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            color: #667eea;
+        }
+
+        .start-audio-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .start-audio-button:active {
+            transform: scale(0.95);
+        }
+
+        .start-audio-button.hidden {
+            display: none;
+        }
+
+        .home-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            z-index: 1500;
+            backdrop-filter: blur(10px);
+        }
+
+        .home-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .home-button:active {
+            transform: scale(0.95);
+        }
+
+        .home-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <button class="home-button hidden" id="homeButton">🏠</button>
+
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-title">🍷 Auguriii amior 🍷</div>
+        <div class="welcome-subtitle">Mo sij na sfaccim e signurina laureat!</div>
+        <button class="start-audio-button" id="startAudioButton"> Inizia </button>
+        <div class="welcome-instruction hidden" id="welcomeInstruction">👆 Scorri verso l'alto per iniziare 👆</div>
+    </div>
+
+    <div class="container" id="container">
+        <div class="card" data-index="0">
+            <div class="emoji">🍷</div>
+            <div class="text">Nun è vin</div>
+        </div>
+        <div class="card" data-index="1">
+            <div class="emoji">💧</div>
+            <div class="text">Nun è acqua</div>
+        </div>
+        <div class="card" data-index="2">
+            <div class="emoji">🕳️</div>
+            <div class="text">A salut ra pucchiacca</div>
+        </div>
+        <div class="card" data-index="3">
+            <div class="emoji">🍷</div>
+            <div class="text">Nun è vin</div>
+        </div>
+        <div class="card" data-index="4">
+            <div class="emoji">🍷👶</div>
+            <div class="text">Nè vinello</div>
+        </div>
+        <div class="card" data-index="5">
+            <div class="emoji">🫛</div>
+            <div class="text">A salut ro pisell</div>
+        </div>
+    </div>
+
+    <div class="scroll-indicator hidden" id="scrollIndicator">👆 Scorri verso l'alto per continuare 👆</div>
+
+    <script>
+        const cards = document.querySelectorAll('.card');
+        const container = document.getElementById('container');
+        const scrollIndicator = document.getElementById('scrollIndicator');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const homeButton = document.getElementById('homeButton');
+        const startAudioButton = document.getElementById('startAudioButton');
+        const welcomeInstruction = document.getElementById('welcomeInstruction');
+        
+        let currentCard = -1; // Start at -1 to show welcome screen first
+        let isScrolling = false;
+        let touchStartY = 0;
+        let hasStarted = false;
+        let currentAudio = null;
+        let backgroundMusic = null;
+        let audioUnlocked = false;
+        
+        // Array di file audio - MODIFICA QUESTI NOMI CON I TUOI FILE MP3
+        const audioFiles = [
+            'nun_e_vin.mp3',      // Card 0
+            'nun_e_acqua.mp3',    // Card 1
+            'a_salut_ra_pucchiacca.mp3', // Card 2
+            'nun_e_vin_2.mp3',    // Card 3
+            'ne_vinello.mp3',     // Card 4
+            'a_salut_ro_pisell.mp3' // Card 5
+        ];
+
+        // File audio per la schermata di benvenuto - MODIFICA CON IL TUO FILE
+        const backgroundMusicFile = 'background_music.mp3';
+
+        // Funzione per fare fade in dell'audio
+        function fadeIn(audio, duration = 500, targetVolume = 1) {
+            audio.volume = 0;
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    const steps = 50;
+                    const stepDuration = duration / steps;
+                    const volumeIncrement = targetVolume / steps;
+                    
+                    let currentStep = 0;
+                    const fadeInterval = setInterval(() => {
+                        currentStep++;
+                        audio.volume = Math.min(currentStep * volumeIncrement, targetVolume);
+                        
+                        if (currentStep >= steps) {
+                            clearInterval(fadeInterval);
+                        }
+                    }, stepDuration);
+                }).catch(err => {
+                    console.log('Errore riproduzione audio:', err);
+                });
+            }
+        }
+
+        // Funzione per fare fade out dell'audio
+        function fadeOut(audio, duration = 500, targetVolume = 0) {
+            if (!audio) return Promise.resolve();
+            
+            return new Promise((resolve) => {
+                const steps = 50;
+                const stepDuration = duration / steps;
+                const startVolume = audio.volume;
+                const volumeDecrement = (startVolume - targetVolume) / steps;
+                
+                let currentStep = 0;
+                const fadeInterval = setInterval(() => {
+                    currentStep++;
+                    audio.volume = Math.max(startVolume - (currentStep * volumeDecrement), targetVolume);
+                    
+                    if (currentStep >= steps) {
+                        clearInterval(fadeInterval);
+                        if (targetVolume === 0) {
+                            audio.pause();
+                            audio.currentTime = 0;
+                        }
+                        resolve();
+                    }
+                }, stepDuration);
+            });
+        }
+
+        function playAudio(index) {
+            if (!audioUnlocked) return;
+            
+            // Se c'è un audio in riproduzione, fai fade out più lungo
+            if (currentAudio) {
+                fadeOut(currentAudio, 800); // Aumentato da 300ms a 800ms
+            }
+            
+            // Crea un nuovo elemento audio per ogni card
+            currentAudio = new Audio(audioFiles[index]);
+            fadeIn(currentAudio, 800); // Aumentato da 300ms a 800ms
+            
+            currentAudio.addEventListener('error', (err) => {
+                console.log('Errore nella riproduzione audio:', err);
+            });
+        }
+
+        function playBackgroundMusic() {
+            if (!audioUnlocked) return;
+            
+            if (!backgroundMusic) {
+                backgroundMusic = new Audio(backgroundMusicFile);
+                backgroundMusic.loop = true;
+                fadeIn(backgroundMusic, 500, 1); // Volume pieno all'inizio
+            } else {
+                // Se esiste già, alza il volume
+                fadeIn(backgroundMusic, 500, 1);
+            }
+        }
+
+        function lowerBackgroundMusic() {
+            if (backgroundMusic) {
+                fadeOut(backgroundMusic, 500, 0.25); // Aumentato da 0.1 (10%) a 0.25 (25%)
+            }
+        }
+
+        function raiseBackgroundMusic() {
+            if (backgroundMusic) {
+                fadeIn(backgroundMusic, 500, 1); // Alza a volume pieno
+            }
+        }
+
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            
+            audioUnlocked = true;
+            startAudioButton.classList.add('hidden');
+            welcomeInstruction.classList.remove('hidden');
+            playBackgroundMusic();
+        }
+
+        function showCard(index) {
+            if (index < 0 || index >= cards.length) {
+                return;
+            }
+
+            // Rimuovi tutte le classi active e exit
+            cards.forEach(card => {
+                card.classList.remove('active', 'exit');
+            });
+
+            // Mostra la card corrente
+            cards[index].classList.add('active');
+
+            // Riproduci l'audio
+            playAudio(index);
+
+            // Nascondi l'indicatore se siamo all'ultima card
+            if (index === cards.length - 1) {
+                scrollIndicator.innerHTML = '👆 Scorri ancora per ricominciare 👆';
+            } else {
+                scrollIndicator.innerHTML = '👆 Scorri verso l\'alto per continuare 👆';
+            }
+            scrollIndicator.classList.remove('hidden');
+        }
+
+        function goHome() {
+            isScrolling = true;
+            
+            // Ferma l'audio corrente con fade più lungo
+            if (currentAudio) {
+                fadeOut(currentAudio, 800);
+            }
+            
+            // Nascondi tutte le card
+            cards.forEach(card => {
+                card.classList.remove('active', 'exit');
+            });
+            
+            // Nascondi indicatore e pulsante home
+            scrollIndicator.classList.add('hidden');
+            homeButton.classList.add('hidden');
+            
+            // Mostra schermata di benvenuto
+            welcomeScreen.classList.remove('hidden');
+            
+            // Mostra di nuovo le istruzioni (non il pulsante audio)
+            if (audioUnlocked) {
+                welcomeInstruction.classList.remove('hidden');
+            }
+            
+            // Reset stato
+            hasStarted = false;
+            currentCard = -1;
+            
+            // Alza la musica di sottofondo (non ricominciare)
+            raiseBackgroundMusic();
+            
+            setTimeout(() => {
+                isScrolling = false;
+            }, 800);
+        }
+
+        function nextCard() {
+            if (isScrolling || !audioUnlocked) return;
+            
+            // Se siamo sulla schermata di benvenuto
+            if (!hasStarted) {
+                isScrolling = true;
+                hasStarted = true;
+                welcomeScreen.classList.add('hidden');
+                homeButton.classList.remove('hidden');
+                lowerBackgroundMusic(); // Abbassa la musica invece di fermarla
+                currentCard = 0;
+                showCard(currentCard);
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 800);
+                return;
+            }
+            
+            // Se siamo all'ultima card, ricomincia
+            if (currentCard >= cards.length - 1) {
+                isScrolling = true;
+                cards[currentCard].classList.add('exit');
+                
+                // Fade out audio corrente più lungo
+                if (currentAudio) {
+                    fadeOut(currentAudio, 800);
+                }
+                
+                // Reset dopo un breve delay
+                setTimeout(() => {
+                    cards.forEach(card => {
+                        card.classList.remove('active', 'exit');
+                    });
+                    currentCard = 0;
+                    showCard(currentCard);
+                    isScrolling = false;
+                }, 400);
+                return;
+            }
+            
+            // Prossima card normale
+            isScrolling = true;
+            cards[currentCard].classList.add('exit');
+            currentCard++;
+            showCard(currentCard);
+            
+            setTimeout(() => {
+                isScrolling = false;
+            }, 800);
+        }
+
+        function previousCard() {
+            if (isScrolling || !hasStarted || currentCard <= 0) return;
+            
+            isScrolling = true;
+            cards[currentCard].classList.remove('active');
+            currentCard--;
+            showCard(currentCard);
+            
+            setTimeout(() => {
+                isScrolling = false;
+            }, 800);
+        }
+
+        // Gestione scroll con mouse wheel
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                // Scroll verso il basso = prossima card
+                nextCard();
+            } else {
+                // Scroll verso l'alto = card precedente
+                previousCard();
+            }
+        }, { passive: false });
+
+        // Gestione touch per mobile
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            // Soglia minima di 50px per il swipe
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    // Swipe verso l'alto = prossima card
+                    nextCard();
+                } else {
+                    // Swipe verso il basso = card precedente
+                    previousCard();
+                }
+            }
+        });
+
+        // Gestione pulsante home
+        homeButton.addEventListener('click', goHome);
+
+        // Gestione pulsante start audio
+        startAudioButton.addEventListener('click', unlockAudio);
+    </script>
+</body>
+</html>
