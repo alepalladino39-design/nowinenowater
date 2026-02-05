@@ -148,6 +148,21 @@
             margin-bottom: 20px;
             text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             animation: pulse 1.5s ease-in-out infinite;
+            padding: 0 20px;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 480px) {
+            .welcome-title {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .welcome-title {
+                font-size: 28px;
+            }
         }
 
         .welcome-subtitle {
@@ -238,7 +253,7 @@
 
     <div class="welcome-screen" id="welcomeScreen">
         <div class="welcome-title">🍷 Auguriii amior 🍷</div>
-        <div class="welcome-subtitle">Mo sij na sfaccim e signurina laureat!</div>
+        <div class="welcome-subtitle">Preparati per un brindisi speciale!</div>
         <button class="start-audio-button" id="startAudioButton"> Inizia </button>
         <div class="welcome-instruction hidden" id="welcomeInstruction">👆 Scorri verso l'alto per iniziare 👆</div>
     </div>
